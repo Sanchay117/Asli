@@ -58,7 +58,7 @@ def _row_factory(cursor):
 
 def _to_pg(sql):
     """Translate the small SQLite dialect used in this app to Postgres."""
-    sql = sql.replace("?", "%s")
+    sql = sql.replace("%", "%%").replace("?", "%s")
     if sql.lstrip().upper().startswith("INSERT OR IGNORE"):
         sql = re.sub(r"(?i)INSERT OR IGNORE", "INSERT", sql, count=1) + " ON CONFLICT DO NOTHING"
     sql = re.sub(r"(?i)\bINTEGER PRIMARY KEY\b", "BIGSERIAL PRIMARY KEY", sql)

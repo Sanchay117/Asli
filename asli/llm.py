@@ -6,7 +6,7 @@ import time
 import requests
 
 from . import db
-from .config import (DATA_DIR, DEFAULT_ROUTING, MODELS, MONTHLY_CAP_USD,
+from .config import (BILLING_FACTOR, DATA_DIR, DEFAULT_ROUTING, MODELS, MONTHLY_CAP_USD,
                      NEBIUS_API_KEY, NEBIUS_BASE_URL, SPEND_CAP_USD)
 
 ROUTING_FILE = DATA_DIR / "routing.json"
@@ -32,7 +32,7 @@ def thinking(task, default):
 
 def cost_of(tier, prompt_tokens, completion_tokens):
     p_in, p_out = MODELS[tier]["price"]
-    return (prompt_tokens * p_in + completion_tokens * p_out) / 1_000_000
+    return BILLING_FACTOR * (prompt_tokens * p_in + completion_tokens * p_out) / 1_000_000
 
 
 def check_budget():

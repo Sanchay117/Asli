@@ -31,8 +31,12 @@ TAVILY_MONTHLY_CREDITS = int(os.environ.get("TAVILY_MONTHLY_CREDITS", "900"))
 
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 
-# USD per million tokens (input, output). Ultra is an estimate until confirmed
-# against the Token Factory bill.
+# The listed prices below undercount the real Token Factory bill: on 29 Oct the ledger said
+# $0.86 while the account balance dropped $1.40. Every recorded cost is multiplied by this
+# factor so the ledger and the spend caps track real money.
+BILLING_FACTOR = float(os.environ.get("BILLING_FACTOR", "1.65"))
+
+# USD per million tokens (input, output), before BILLING_FACTOR.
 MODELS = {
     "nano": {
         "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
