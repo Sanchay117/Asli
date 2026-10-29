@@ -32,7 +32,7 @@ TAVILY_MONTHLY_CREDITS = int(os.environ.get("TAVILY_MONTHLY_CREDITS", "900"))
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 
 # Safety margin on top of list prices, in case the bill drifts from them.
-BILLING_FACTOR = float(os.environ.get("BILLING_FACTOR", "1.1"))
+BILLING_FACTOR = float(os.environ.get("BILLING_FACTOR", "1.25"))
 
 # USD per million tokens (input, output), from Token Factory's /v1/models?verbose=true.
 MODELS = {

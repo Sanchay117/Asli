@@ -30,9 +30,18 @@
   h1 em { font-style: normal; color: var(--accent); }
   .sub { margin-top: 44px; font: 600 42px Inter; color: var(--ink-2); }
   .sub b { color: var(--bad); }
+  /* 3:2 variant for Devpost, picked with ?r=3x2 */
+  html.r32, html.r32 body { width: 1620px; }
+  html.r32 .left { left: 80px; width: 900px; }
+  html.r32 h1 { font-size: 112px; }
+  html.r32 .sub { font-size: 36px; }
+  html.r32 .card { right: 70px; width: 500px; }
+  html.r32 .card .canvas { transform: scale(1.0) translate(-784px, -105px); }
+  html.r32 .stamp { right: 40px; font-size: 64px; }
 </style>
 </head>
 <body>
+<script>if (location.search.includes("r=3x2")) document.documentElement.classList.add("r32");</script>
   <div class="card">
     <div class="canvas">
       <img src="assets/flipkart_3060.png" alt="">
