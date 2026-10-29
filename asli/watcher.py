@@ -3,6 +3,8 @@
 python -m asli.watcher --seed        find popular GPU listings to track
 python -m asli.watcher --once        one pass over the watchlist
 python -m asli.watcher --loop 3      a pass every 3 hours
+python -m asli.watcher --loop 2 --only flipkart.com   only one store (the hosted app
+                                     cannot reach Flipkart, so a home machine covers it)
 """
 import argparse
 import random
@@ -84,9 +86,11 @@ def observe(url):
     return lst, page_hash
 
 
-def run_once(pass_no=0):
+def run_once(pass_no=0, only=None):
     with db.conn() as c:
         tracked = [dict(r) for r in c.execute("SELECT * FROM tracked")]
+    if only:
+        tracked = [t for t in tracked if store_of(t["url"])["domain"] == only]
     seen = changed = 0
     for t in tracked:
         url = t["url"]
@@ -112,11 +116,11 @@ def run_once(pass_no=0):
     return seen
 
 
-def loop(hours):
+def loop(hours, only=None):
     n = 0
     while True:
         try:
-            run_once(n)
+            run_once(n, only)
         except Exception as e:
             print("pass failed:", e)
         n += 1
@@ -128,10 +132,11 @@ if __name__ == "__main__":
     ap.add_argument("--seed", action="store_true")
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--loop", type=float)
+    ap.add_argument("--only", help="limit to one store domain, e.g. flipkart.com")
     a = ap.parse_args()
     if a.seed:
         seed()
     if a.once:
-        run_once()
+        run_once(only=a.only)
     if a.loop:
-        loop(a.loop)
+        loop(a.loop, a.only)
