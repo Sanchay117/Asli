@@ -305,3 +305,7 @@ function evalHtml(ev, models) {
 loadExamples();
 const startTab = (location.hash || "").slice(1);
 showTab(["check", "watch", "hood"].includes(startTab) ? startTab : "check");
+window.addEventListener("hashchange", () => {
+  const t = location.hash.slice(1);
+  if (["check", "watch", "hood"].includes(t)) showTab(t);
+});
