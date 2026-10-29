@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Asli scenes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1114; --surface: #171a1f; --surface-2: #1e2229; --ink: #eef0f3; --ink-2: #b8bdc7;
+    --muted: #868c98; --line: #2a2f38; --accent: #2fbf7f; --good: #43c98d; --warn: #f0a640;
+    --bad: #ff6b5b; --nano: #6b9cff; --super: #b88af0; --ultra: #ff8a5c;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink);
+    font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(1200px 700px at 75% 20%, rgba(47,191,127,.10), transparent 60%),
+                radial-gradient(900px 600px at 10% 90%, rgba(255,138,92,.07), transparent 60%); }
+  .scene { position: absolute; inset: 0; display: none; }
+  .scene.on { display: block; }
+  h1, h2, .num { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; }
+  .fade { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .fade.in { opacity: 1; transform: none; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+
+  /* 01 hook */
+  #hook .frame { position: absolute; left: 110px; top: 110px; width: 900px; height: 860px; border-radius: 22px;
+    overflow: hidden; background: #fff; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+  #hook .canvas { position: absolute; left: 0; top: 0; width: 1366px; height: 900px; transform-origin: 0 0;
+    transform: translate(-440px, -90px); transition: transform 9s ease-out; }
+  #hook .canvas img { width: 1366px; display: block; }
+  #hook .frame.zoom .canvas { transform: scale(1.08) translate(-470px, -110px); }
+  #hook .hl { position: absolute; border: 4px solid var(--warn); border-radius: 12px; opacity: 0;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0); transition: opacity .4s, box-shadow .6s; }
+  #hook .hl.in { opacity: 1; }
+  #hook .stamp { position: absolute; left: 210px; top: 560px; width: 480px; padding: 18px; text-align: center;
+    background: var(--bad); color: #fff; font: 700 44px "Space Grotesk"; border-radius: 14px;
+    transform: rotate(-4deg) scale(2.2); opacity: 0; transition: transform .35s cubic-bezier(.2,1.6,.4,1), opacity .2s; }
+  #hook .stamp.in { transform: rotate(-4deg) scale(1); opacity: 1; }
+  #hook .clock { position: absolute; right: 110px; top: 340px; text-align: right; }
+  #hook .clock .num { font-size: 150px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  #hook .clock .ampm { font: 600 42px "Space Grotesk"; color: var(--muted); }
+  #hook .clock.midnight .num { color: var(--bad); }
+  #hook .again { position: absolute; right: 110px; top: 620px; font: 700 64px "Space Grotesk"; color: var(--ink-2); }
+
+  /* 02 stats */
+  #stats .wrap { position: absolute; left: 140px; right: 140px; top: 120px; display: grid; gap: 34px; }
+  #stats .card { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 38px 46px;
+    display: grid; grid-template-columns: 420px 1fr; gap: 40px; align-items: center; }
+  #stats .big { font: 700 108px "Space Grotesk"; line-height: 1; }
+  #stats .big small { font-size: 54px; color: var(--muted); }
+  #stats .label { font-size: 30px; color: var(--ink-2); line-height: 1.35; }
+  #stats .label b { color: var(--ink); }
+  .dots { display: grid; grid-template-columns: repeat(11, 34px); gap: 12px; margin-top: 20px; }
+  .dot { width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); border: 2px solid var(--line); transition: background .25s, border-color .25s; }
+  .dot.red { background: var(--bad); border-color: var(--bad); }
+  .dot.green { background: var(--good); border-color: var(--good); }
+  .chips { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+  .pchip { font: 600 28px "Space Grotesk"; padding: 10px 18px; border-radius: 12px; background: var(--surface-2); position: relative; transition: color .3s; }
+  .pchip::after { content: ""; position: absolute; left: 10px; right: 10px; top: 50%; height: 4px; background: var(--bad); transform: scaleX(0); transform-origin: left; transition: transform .35s; }
+  .pchip.x { color: var(--muted); }
+  .pchip.x::after { transform: scaleX(1); }
+  .oos { font: 700 26px Inter; color: var(--bad); margin-top: 16px; opacity: 0; transition: opacity .4s; }
+  .oos.in { opacity: 1; }
+
+  /* 03 intro + 10 outro */
+  .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .logo { display: inline-flex; align-items: center; gap: 30px; }
+  .mark { width: 150px; height: 150px; border-radius: 40px; background: var(--accent); color: #06130d;
+    display: grid; place-items: center; font: 700 96px Inter; transform: scale(0) rotate(-20deg);
+    transition: transform .8s cubic-bezier(.2,1.5,.4,1); }
+  .mark.in { transform: none; }
+  .word { font: 700 150px "Space Grotesk"; letter-spacing: -.05em; }
+  .sub { font-size: 40px; color: var(--ink-2); margin-top: 26px; }
+  .sub .dev { color: var(--accent); font-weight: 600; }
+  .tag { font: 700 96px "Space Grotesk"; margin-top: 40px; }
+  .ask { margin: 46px auto 0; width: 1100px; display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 22px; padding: 12px; text-align: left; }
+  .ask .in { flex: 1; font: 28px Inter; color: var(--muted); padding: 18px 16px; white-space: nowrap; overflow: hidden; }
+  .ask .btn { background: var(--accent); color: #06130d; font: 600 28px Inter; padding: 18px 30px; border-radius: 14px; }
+  .caret { display: inline-block; width: 3px; height: 30px; background: var(--ink); vertical-align: middle; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .links { margin-top: 56px; display: grid; gap: 14px; font: 500 34px "JetBrains Mono"; color: var(--ink-2); }
+  .built { margin-top: 50px; font-size: 28px; color: var(--muted); }
+
+  /* 08 eval */
+  #eval .wrap { position: absolute; left: 150px; right: 150px; top: 110px; }
+  #eval h2 { font-size: 64px; margin-bottom: 14px; }
+  #eval .cap { font-size: 28px; color: var(--muted); margin-bottom: 46px; }
+  .bars { display: grid; gap: 22px; }
+  .bar { display: grid; grid-template-columns: 460px 1fr 140px; align-items: center; gap: 28px; }
+  .bar .name { font: 600 32px Inter; }
+  .bar .name small { display: block; font: 500 22px "JetBrains Mono"; color: var(--muted); margin-top: 4px; }
+  .track { height: 58px; background: var(--surface-2); border-radius: 14px; overflow: hidden; }
+  .fill { height: 100%; width: 0; border-radius: 14px; transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+  .bar .pct { font: 700 52px "Space Grotesk"; text-align: right; font-variant-numeric: tabular-nums; }
+  .bar.win .name { color: var(--ultra); }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 56px; }
+  .fact { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 30px 36px; }
+  .fact .num { font-size: 76px; font-weight: 700; color: var(--accent); }
+  .fact div:last-child { font-size: 28px; color: var(--ink-2); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<section class="scene" id="hook">
+  <div class="frame" id="frame">
+    <div class="canvas">
+      <img src="assets/flipkart_3060.png" alt="">
+      <div class="hl" id="hl-price" style="left:788px;top:220px;width:324px;height:52px"></div>
+      <div class="hl" id="hl-notify" style="left:792px;top:842px;width:482px;height:56px"></div>
+    </div>
+    <div class="stamp" id="stamp">Not available</div>
+  </div>
+  <div class="clock" id="clock"><div class="num" id="clock-num">11:59:52</div><div class="ampm" id="ampm">PM</div></div>
+  <div class="again fade" id="again">Again.</div>
+</section>
+
+<section class="scene" id="stats">
+  <div class="wrap">
+    <div class="card fade" id="s1">
+      <div class="big">18<small> / 22</small></div>
+      <div><div class="label"><b>Flipkart GPU listings stuck on "Notify Me"</b> on day one. The cheap ones.</div>
+        <div class="dots" id="dots"></div></div>
+    </div>
+    <div class="card fade" id="s2">
+      <div class="big">₹24k</div>
+      <div><div class="label"><b>RTX 3060s at trusted Indian stores</b>, from ₹23,900</div>
+        <div class="chips" id="chips"></div>
+        <div class="oos" id="oos">Every one checked: out of stock</div></div>
+    </div>
+    <div class="card fade" id="s3">
+      <div class="big" id="real">₹0</div>
+      <div class="label"><b>The cheapest RTX 3060 you can actually buy</b> from a trusted store</div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="intro">
+  <div class="center"><div>
+    <div class="logo"><div class="mark" id="mark">अ</div><div class="word fade" id="word">asli</div></div>
+    <div class="sub fade" id="sub"><span class="dev">असली</span> · Hindi for genuine</div>
+    <div class="ask fade" id="ask"><div class="in" id="typing"></div><div class="btn">Check deal</div></div>
+  </div></div>
+</section>
+
+<section class="scene" id="eval">
+  <div class="wrap">
+    <h2 class="fade" id="e-title">Measured, not guessed</h2>
+    <div class="cap fade" id="e-cap">Reading 29 real Indian store pages, scored against each store's own price and stock data</div>
+    <div class="bars" id="bars"></div>
+    <div class="facts">
+      <div class="fact fade" id="f1"><div class="num">7×</div><div>fewer output tokens with Nemotron reasoning turned off, same answers</div></div>
+      <div class="fact fade" id="f2"><div class="num">100%</div><div>on the verdict scenarios for Ultra with reasoning off, at half the cost of reasoning on</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="outro">
+  <div class="center"><div>
+    <div class="logo"><div class="mark" id="o-mark">अ</div><div class="word fade" id="o-word">asli</div></div>
+    <div class="tag fade" id="o-tag">Check the deal before you wait for midnight.</div>
+    <div class="links fade" id="o-links"><div>asli-1ixl.onrender.com</div><div>github.com/Sanchay117/Asli</div></div>
+    <div class="built fade" id="o-built">NVIDIA Nemotron on Nebius Token Factory · Tavily</div>
+  </div></div>
+</section>
+
+<script>
+const q = new URLSearchParams(location.search);
+const scene = q.get("s");
+const $ = (id) => document.getElementById(id);
+const at = (ms, fn) => setTimeout(fn, ms);
+const show = (id) => $(id).classList.add("in");
+function count(el, from, to, ms, fmt) {
+  const t0 = performance.now();
+  (function tick(t) {
+    const p = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(Math.round(from + (to - from) * e));
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+const inr = (n) => "₹" + n.toLocaleString("en-IN");
+
+const SCENES = {
+  hook() {
+    at(200, () => $("frame").classList.add("zoom"));
+    let s = 52;
+    const iv = setInterval(() => {
+      s++;
+      if (s >= 60) {
+        clearInterval(iv);
+        $("clock-num").textContent = "12:00:00"; $("ampm").textContent = "AM";
+        $("clock").classList.add("midnight");
+        return;
+      }
+      $("clock-num").textContent = "11:59:" + s;
+    }, 1000);
+    at(3200, () => show("hl-price"));
+    at(5600, () => show("hl-notify"));
+    at(8600, () => show("stamp"));
+    at(10400, () => show("again"));
+  },
+  stats() {
+    const dots = $("dots");
+    for (let i = 0; i < 22; i++) dots.insertAdjacentHTML("beforeend", `<div class="dot"></div>`);
+    const prices = [23900, 24895, 25099, 25215, 25398, 25399, 26749, 27595];
+    $("chips").innerHTML = prices.map((p) => `<span class="pchip">${inr(p)}</span>`).join("");
+    at(300, () => show("s1"));
+    at(1400, () => [...dots.children].forEach((d, i) => at(i * 110, () => d.classList.add(i < 18 ? "red" : "green"))));
+    at(7600, () => show("s2"));
+    at(9800, () => [...$("chips").children].forEach((c, i) => at(i * 180, () => c.classList.add("x"))));
+    at(11600, () => show("oos"));
+    at(13600, () => { show("s3"); count($("real"), 24000, 54662, 2200, inr); });
+  },
+  intro() {
+    at(200, () => show("mark"));
+    at(700, () => show("word"));
+    at(2200, () => show("sub"));
+    at(5200, () => {
+      show("ask");
+      const text = "https://www.flipkart.com/rtx-3060...";
+      let i = 0;
+      const iv = setInterval(() => {
+        $("typing").innerHTML = text.slice(0, ++i) + '<span class="caret"></span>';
+        if (i >= text.length) clearInterval(iv);
+      }, 55);
+    });
+  },
+  eval() {
+    const rows = [
+      ["Nemotron 3 Nano", "reasoning off", 84, "var(--nano)"],
+      ["Nemotron 3 Nano", "reasoning on", 88, "var(--nano)"],
+      ["Nemotron 3 Super", "reasoning off", 34, "var(--super)"],
+      ["Nemotron 3 Ultra", "reasoning off · chosen", 98, "var(--ultra)"],
+    ];
+    $("bars").innerHTML = rows.map((r, i) => `<div class="bar fade ${i === 3 ? "win" : ""}" id="b${i}">
+      <div class="name">${r[0]}<small>${r[1]}</small></div>
+      <div class="track"><div class="fill" id="fill${i}" style="background:${r[3]}"></div></div>
+      <div class="pct" id="pct${i}">0%</div></div>`).join("");
+    at(200, () => show("e-title"));
+    at(1200, () => show("e-cap"));
+    rows.forEach((r, i) => at(2600 + i * 900, () => {
+      show("b" + i);
+      at(150, () => { $("fill" + i).style.width = r[2] + "%"; count($("pct" + i), 0, r[2], 1400, (n) => n + "%"); });
+    }));
+    at(10200, () => show("f1"));
+    at(12600, () => show("f2"));
+  },
+  outro() {
+    at(150, () => show("o-mark"));
+    at(500, () => show("o-word"));
+    at(1100, () => show("o-tag"));
+    at(2400, () => show("o-links"));
+    at(3200, () => show("o-built"));
+  },
+};
+
+document.fonts.ready.then(() => {
+  $(scene).classList.add("on");
+  window.__start = performance.now();
+  SCENES[scene]();
+  document.title = "started";
+});
+</script>
+</body>
+</html>

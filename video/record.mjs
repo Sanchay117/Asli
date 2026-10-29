@@ -9,7 +9,7 @@ import path from "node:path";
 const BASE = process.env.ASLI_URL || "https://asli-1ixl.onrender.com";
 const [take, outDir] = process.argv.slice(2);
 const SHOT = "/private/tmp/claude-501/-Users-sanchaysingh-Desktop-Hackathons/e8b24e26-fde4-4a9c-bc76-0a48e79540c6/scratchpad/fk_3060.png";
-const AMAZON = "https://www.amazon.in/GIGABYTE-WINDFORCE-pci_e_x16-Graphics-GV-N3060WF2OC-12GD/dp/B0BNP2CMXM";
+const AMAZON = "https://www.amazon.in/dp/B0BNP2CMXM?th=1";
 const FLIPKART = "https://www.flipkart.com/gigabyte-geforce-rtx-3060-pci-e-x16-windforce-oc-12gd-gv-n3060wf2oc-12gd-gddr6-12-gb-nvidia-chipset-192-bit-1792-mhz-graphics-card/p/itmabe6891376c4e";
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -77,6 +77,19 @@ if (take === "amazon" || take === "flipkart") {
   mark("typed");
   await click(page.locator("#go"));
   mark("submitted");
+  if (take === "amazon") {
+    await page.locator("#run:not([hidden])").waitFor();
+    await page.evaluate(() => { document.querySelector("main").style.paddingBottom = "1100px"; });
+    await page.waitForTimeout(500);
+    await page.evaluate(() => {
+      // Ease the agent run panel to the top and keep it there while steps stream in.
+      window.__pin = setInterval(() => {
+        const d = document.querySelector("#run").getBoundingClientRect().top - 100;
+        if (Math.abs(d) > 1) window.scrollBy(0, d * 0.12);
+      }, 16);
+    });
+    mark("at_run");
+  }
 
   if (take === "flipkart") {
     await page.locator("#shot.ask").waitFor({ timeout: 120000 });
@@ -85,11 +98,23 @@ if (take === "amazon" || take === "flipkart") {
     await moveTo(page.locator("#drop"));
     await page.locator("#file").setInputFiles(SHOT);
     mark("uploaded");
+    await page.evaluate(() => { document.querySelector("main").style.paddingBottom = "1100px"; });
+    await page.waitForTimeout(700);
+    await page.evaluate(() => {
+      // Ease the agent run panel to the top and keep it there while steps stream in.
+      window.__pin = setInterval(() => {
+        const d = document.querySelector("#run").getBoundingClientRect().top - 100;
+        if (Math.abs(d) > 1) window.scrollBy(0, d * 0.12);
+      }, 16);
+    });
+    mark("at_run");
   }
   await page.locator("#step-market.done, #step-market.error").waitFor({ timeout: 180000 });
   mark("evidence_done");
   await page.locator("#result:not([hidden]) .verdict").waitFor({ timeout: 180000 });
   mark("verdict");
+  await page.evaluate(() => clearInterval(window.__pin));
+  await page.evaluate(() => { document.querySelector("main").style.paddingBottom = ""; });
   await page.waitForTimeout(800);
   await scrollToEl("#result", 1600);
   mark("at_verdict");

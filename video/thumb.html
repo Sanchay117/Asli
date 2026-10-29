@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Asli thumbnail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0f1114; --ink: #eef0f3; --ink-2: #b8bdc7; --accent: #2fbf7f; --warn: #f0a640; --bad: #ff6b5b; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink);
+    font-family: Inter, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: absolute; inset: 0;
+    background: radial-gradient(1100px 700px at 80% 30%, rgba(255,107,91,.16), transparent 60%),
+                radial-gradient(900px 600px at 10% 90%, rgba(47,191,127,.12), transparent 60%); }
+  .card { position: absolute; right: 120px; top: 110px; width: 540px; height: 860px; border-radius: 26px;
+    overflow: hidden; background: #fff; box-shadow: 0 40px 100px rgba(0,0,0,.6); transform: rotate(2.5deg); }
+  .card .canvas { position: absolute; left: 0; top: 0; width: 1366px; transform-origin: 0 0;
+    transform: scale(1.06) translate(-785px, -100px); }
+  .card img { width: 1366px; display: block; }
+  .hl { position: absolute; border: 6px solid var(--warn); border-radius: 14px; }
+  .stamp { position: absolute; right: 90px; top: 600px; padding: 22px 40px; background: var(--bad); color: #fff;
+    font: 700 74px "Space Grotesk"; letter-spacing: -.02em; border-radius: 18px; transform: rotate(-7deg);
+    box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+  .left { position: absolute; left: 110px; top: 170px; width: 1100px; }
+  .brand { display: flex; align-items: center; gap: 24px; }
+  .mark { width: 120px; height: 120px; border-radius: 30px; background: var(--accent); color: #0b2a1c;
+    display: grid; place-items: center; font: 700 76px Inter; }
+  .word { font: 700 110px "Space Grotesk"; letter-spacing: -.04em; }
+  h1 { margin-top: 70px; font: 700 132px/1.0 "Space Grotesk"; letter-spacing: -.045em; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .sub { margin-top: 44px; font: 600 42px Inter; color: var(--ink-2); }
+  .sub b { color: var(--bad); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="canvas">
+      <img src="assets/flipkart_3060.png" alt="">
+      <div class="hl" style="left:786px;top:218px;width:328px;height:56px"></div>
+      <div class="hl" style="left:790px;top:840px;width:486px;height:60px"></div>
+    </div>
+  </div>
+  <div class="stamp">LIKELY BAIT</div>
+  <div class="left">
+    <div class="brand"><div class="mark">अ</div><div class="word">asli</div></div>
+    <h1>Is that GPU deal <em>real?</em></h1>
+    <p class="sub">₹28,839 RTX 3060 · <b>Notify Me</b> · 0 of 8 in stock</p>
+  </div>
+</body>
+</html>

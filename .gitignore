@@ -11,3 +11,4 @@ data/eval_cases.json
 video/node_modules/
 video/out/
 video/build/
+video/assets/
