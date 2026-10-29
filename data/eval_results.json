@@ -39,11 +39,12 @@
    "tier": "ultra",
    "think": false,
    "accuracy": 0.9827586206896551,
-   "cost_per_call": 0.001811151724137931,
+   "cost_per_call": 0.0033702139994903606,
    "latency_s": 3.9572413793103447,
    "out_tokens": 177.6551724137931,
    "n": 29,
-   "chosen": true
+   "chosen": true,
+   "repriced": true
   },
   {
    "task": "verdict",
@@ -70,21 +71,23 @@
    "tier": "ultra",
    "think": false,
    "accuracy": 1.0,
-   "cost_per_call": 0.0014532583333333334,
+   "cost_per_call": 0.0021717546631311417,
    "latency_s": 2.755,
    "out_tokens": 436.0833333333333,
    "n": 12,
-   "chosen": true
+   "chosen": true,
+   "repriced": true
   },
   {
    "task": "verdict",
    "tier": "ultra",
    "think": true,
    "accuracy": 1.0,
-   "cost_per_call": 0.0031522083333333337,
+   "cost_per_call": 0.004710671867523561,
    "latency_s": 4.458333333333333,
    "out_tokens": 1208.3333333333333,
-   "n": 12
+   "n": 12,
+   "repriced": true
   }
  ],
  "routing": {

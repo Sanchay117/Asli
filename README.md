@@ -24,6 +24,8 @@ Paste link
   │               seller id, Flipkart Assured, GST invoice). No model needed.
   │     Others:   Tavily extract → Nemotron reads price, seller, stock, returns, warranty,
   │               then the store's own schema.org data verifies price and stock.
+  │     Blocked:  Flipkart does not serve its pages to cloud servers, so the hosted app asks
+  │               for a screenshot, which Nemotron 3.5 Super VL reads in about 4 seconds.
   │
   ├─ 2. Gather evidence, in parallel
   │     Trusted-store prices  Tavily search across MD Computers, PrimeABGB, Vedant,
@@ -60,11 +62,11 @@ The brief suggests Nano for fast everyday calls and Ultra for hard reasoning. I 
 | Read listing | Nano | 84% | $0.00022 | 3.4s |
 | Read listing | Nano + reasoning | 88% | $0.00052 | 22.3s |
 | Read listing | Super | 34% | $0.00119 | 4.1s |
-| **Read listing** | **Ultra, reasoning off** | **98%** | $0.00181 | 4.0s |
+| **Read listing** | **Ultra, reasoning off** | **98%** | $0.00337 | 4.0s |
 | Verdict | Nano + reasoning | 75% | $0.00048 | 24.5s |
 | Verdict | Super + reasoning | 75% | $0.00160 | 13.2s |
-| **Verdict** | **Ultra, reasoning off** | **100%** | $0.00145 | 2.8s |
-| Verdict | Ultra + reasoning | 100% | $0.00315 | 4.5s |
+| **Verdict** | **Ultra, reasoning off** | **100%** | $0.00217 | 2.8s |
+| Verdict | Ultra + reasoning | 100% | $0.00471 | 4.5s |
 
 Rule: the cheapest setup within 2 points of the best accuracy wins. The eval writes `data/routing.json`, which production reads.
 
@@ -74,19 +76,20 @@ What I learned:
 - **Super with JSON mode and reasoning off** returned `{}` or looped on escaped JSON until the token limit. `asli/llm.py` retries without JSON mode, but Super stayed unreliable for this task.
 - Forum summaries are not price-critical, so they stay on Nano.
 
-A full check costs about **$0.02** in Nemotron tokens.
+A full check costs about **$0.04** in Nemotron tokens. Prices are Token Factory's list prices from `/v1/models?verbose=true` (Ultra $1.00 in / $3.00 out per million tokens).
 
 ## Where Nebius Token Factory and NVIDIA models are used
 
 | Step | Model (Token Factory) | Why |
 |---|---|---|
+| Read screenshot | `nvidia/Nemotron-3.5-Super-VL`, reasoning off | for sites that block servers (Flipkart) |
 | Read listing | `nvidia/Nemotron-3-Ultra-550b-a55b`, reasoning off | 98% on the eval |
 | Price trusted stores | `nvidia/Nemotron-3-Ultra-550b-a55b`, reasoning off | same skill as reading |
 | Summarise forum reports | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | low stakes, cheapest |
 | Verdict | `nvidia/Nemotron-3-Ultra-550b-a55b`, reasoning off | 100% on scenarios, half the cost of reasoning on |
 | Evaluation | Nano, Super and Ultra, with and without reasoning | to choose the above |
 
-All calls go through Token Factory's OpenAI-compatible API (`https://api.tokenfactory.nebius.com/v1`). Token Factory made it practical to evaluate three model sizes with and without reasoning on real data in one afternoon, for under a dollar.
+All calls go through Token Factory's OpenAI-compatible API (`https://api.tokenfactory.nebius.com/v1`). Token Factory made it practical to evaluate three model sizes with and without reasoning on real data in one afternoon, for about a dollar.
 
 **Tavily** does search (trusted stores, forums, warranty) and page extraction (Amazon and store pages).
 
