@@ -17,9 +17,11 @@ TABLES = {
 }
 with db.conn() as dst:
     for table, cols in TABLES.items():
-        rows = src.execute(f"SELECT {cols} FROM {table}").fetchall()
-        marks = ",".join("?" * len(cols.split(",")))
-        verb = "INSERT OR IGNORE" if table == "tracked" else "INSERT"
-        for r in rows:
-            dst.execute(f"{verb} INTO {table} ({cols}) VALUES ({marks})", tuple(r))
-        print(table, len(rows))
+        rows = [tuple(r) for r in src.execute(f"SELECT {cols} FROM {table}").fetchall()]
+        marks = ",".join(["%s"] * len(cols.split(",")))
+        if table != "tracked":
+            dst.execute(f"DELETE FROM {table}")  # safe to re-run
+        tail = " ON CONFLICT DO NOTHING" if table == "tracked" else ""
+        with dst.raw.cursor() as cur:  # one batched round trip instead of one per row
+            cur.executemany(f"INSERT INTO {table} ({cols}) VALUES ({marks}){tail}", rows)
+        print(table, len(rows), flush=True)
