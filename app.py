@@ -34,6 +34,9 @@ EXAMPLES = [
 class CheckIn(BaseModel):
     url: str | None = None
     text: str | None = None
+    image: str | None = None  # data URL of a listing screenshot
+
+MAX_IMAGE_CHARS = 6_000_000
 
 
 def _rate_limit(request: Request):
@@ -89,14 +92,17 @@ def index():
 def check(body: CheckIn, request: Request):
     url = (body.url or "").strip() or None
     text = (body.text or "").strip() or None
-    if not url and not text:
-        raise HTTPException(400, "Paste a listing link or the listing text.")
+    image = body.image or None
+    if image and (not image.startswith("data:image/") or len(image) > MAX_IMAGE_CHARS):
+        raise HTTPException(400, "Upload a PNG or JPG screenshot under 4 MB.")
+    if not url and not text and not image:
+        raise HTTPException(400, "Paste a listing link, the listing text or a screenshot.")
     if url and not url.startswith(("http://", "https://")):
         url = "https://" + url
     _rate_limit(request)
 
     def stream():
-        for ev in run_check(url=url, text=text):
+        for ev in run_check(url=url, text=text, image=image):
             yield f"data: {json.dumps(ev, default=str, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(stream(), media_type="text/event-stream",

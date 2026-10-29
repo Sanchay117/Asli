@@ -40,8 +40,18 @@
         <span>Try:</span>
         <div id="examples" class="chips"></div>
       </div>
+      <div id="shot" class="shot">
+        <label id="drop" class="drop" for="file">
+          <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          <span class="drop-icon" aria-hidden="true">⬆</span>
+          <span><b>Or upload a screenshot of the listing</b><br>
+            <span class="muted">Drop it here, paste it, or click to choose. Works for any site,
+              including ones that block Asli. Nemotron's vision model reads it.</span></span>
+        </label>
+        <div id="shot-note" class="shot-note" hidden></div>
+      </div>
       <details class="paste">
-        <summary>Site blocked? Paste the listing text instead</summary>
+        <summary>No screenshot? Paste the listing text instead</summary>
         <form id="form-text">
           <textarea id="text" rows="5" placeholder="Copy everything on the product page (title, price, seller, stock) and paste it here"></textarea>
           <button type="submit">Check pasted text</button>

@@ -189,6 +189,10 @@ def structured_offer(url):
     return None
 
 
+class NeedScreenshot(RuntimeError):
+    """The page could not be read from the server; ask the user for a screenshot."""
+
+
 def read_listing(url):
     """Returns (listing, calls, page_hash). calls lists the model calls made."""
     url = canonical(url)
@@ -225,9 +229,46 @@ def read_listing(url):
                 method += ", verified with page data"
     listing["gpu"] = normalise_gpu(listing.get("title") or "") or \
         normalise_gpu(listing.get("gpu") or "")
+    if not listing.get("price_inr"):
+        raise NeedScreenshot(f"{store['name']} did not let Asli read this page. "
+                             "Upload a screenshot of the listing and Asli will read it instead.")
     listing.update(url=url, store=store["name"], store_domain=store["domain"],
                    store_kind=store["kind"], method=method)
     return listing, calls, page_hash
+
+
+SCREENSHOT_SYSTEM = ("You read screenshots of Indian e-commerce product pages and return the "
+                     "listing facts as JSON. Use only what is visible; use null when a field is "
+                     "not shown. Prices are integers in rupees without commas. A 'Notify Me', "
+                     "'Coming Soon' or 'Sold Out' button means in_stock is false; 'Buy Now' or "
+                     "'Add to Cart' means true. The seller is the name after 'Seller' or 'Sold by'.")
+
+
+SHOT_FIELDS = """{"title": str, "brand": str|null, "price_inr": int|null, "mrp_inr": int|null,
+ "in_stock": bool|null, "availability_text": str|null, "seller": str|null,
+ "returnable": bool|null, "rating": float|null, "rating_count": int|null}"""
+
+
+def read_image(image, url=""):
+    """Read a listing from a screenshot (data URL) with Nemotron's vision model."""
+    store = store_of(url) if url else {"domain": "", "name": "Screenshot", "kind": "unknown"}
+    user = (f"Store (if known): {store['name']}\nURL (if known): {url or 'unknown'}\n\n"
+            f"The MRP is the struck-through price. Return only JSON with these fields:\n{SHOT_FIELDS}")
+    listing, meta = llm.chat_json("read_screenshot", SCREENSHOT_SYSTEM, user, max_tokens=500,
+                                  image=image)
+    listing.setdefault("is_product_page", True)
+    if not url:
+        name = (listing.get("store") or "").lower()
+        for domain in ("flipkart", "amazon"):
+            if domain in name or domain in (listing.get("title") or "").lower():
+                store = store_of(f"https://www.{domain}.{'in' if domain == 'amazon' else 'com'}/")
+    listing["gpu"] = normalise_gpu(listing.get("title") or "") or normalise_gpu(listing.get("gpu") or "")
+    if not listing.get("price_inr"):
+        raise ValueError("Asli could not find a price in that screenshot. Try one that shows "
+                         "the title, price and the buy or notify button.")
+    listing.update(url=url, store=store["name"], store_domain=store["domain"],
+                   store_kind=store["kind"], method="screenshot + " + meta["model"])
+    return listing, [meta], hashlib.sha1(image[-4000:].encode()).hexdigest()
 
 
 def read_text(text, url=""):

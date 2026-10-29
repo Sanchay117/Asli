@@ -8,3 +8,6 @@ data/*.db-*
 data/watcher.log
 data/eval_cases.json
 .claude/
+video/node_modules/
+video/out/
+video/build/

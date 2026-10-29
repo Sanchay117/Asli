@@ -44,6 +44,39 @@ $("#form-text").addEventListener("submit", (e) => {
   if (text) runCheck({ text, url: $("#url").value || null });
 });
 
+/* ---------- screenshots ---------- */
+function shrink(file, maxW = 1000) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxW / img.width);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/jpeg", 0.85));
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => reject(new Error("That file is not an image Asli can read."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+async function useScreenshot(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  try {
+    const image = await shrink(file);
+    runCheck({ image, url: $("#url").value.trim() || null });
+  } catch (err) { showError(err.message); }
+}
+$("#file").addEventListener("change", (e) => { useScreenshot(e.target.files[0]); e.target.value = ""; });
+const drop = $("#drop");
+["dragenter", "dragover"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => useScreenshot(e.dataTransfer.files[0]));
+document.addEventListener("paste", (e) => {
+  const item = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith("image/"));
+  if (item) useScreenshot(item.getAsFile());
+});
+
 let started = 0, timer = null;
 
 async function runCheck(payload) {
@@ -52,6 +85,8 @@ async function runCheck(payload) {
   $("#run").hidden = false;
   $("#result").hidden = true;
   $("#error").hidden = true;
+  $("#shot").classList.remove("ask");
+  $("#shot-note").hidden = true;
   started = Date.now();
   clearInterval(timer);
   timer = setInterval(() => { $("#run-meta").textContent = ((Date.now() - started) / 1000).toFixed(1) + "s"; }, 100);
@@ -95,6 +130,14 @@ function handle(ev) {
     return;
   }
   if (ev.type === "error") return showError(ev.message);
+  if (ev.type === "need_screenshot") {
+    document.querySelectorAll(".step.running").forEach((s) => s.className = "step error");
+    $("#shot").classList.add("ask");
+    $("#shot-note").textContent = ev.message;
+    $("#shot-note").hidden = false;
+    $("#shot").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   if (ev.type === "result") return renderResult(ev);
 }
 

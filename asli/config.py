@@ -31,12 +31,10 @@ TAVILY_MONTHLY_CREDITS = int(os.environ.get("TAVILY_MONTHLY_CREDITS", "900"))
 
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 
-# The listed prices below undercount the real Token Factory bill: on 29 Oct the ledger said
-# $0.86 while the account balance dropped $1.40. Every recorded cost is multiplied by this
-# factor so the ledger and the spend caps track real money.
-BILLING_FACTOR = float(os.environ.get("BILLING_FACTOR", "1.65"))
+# Safety margin on top of list prices, in case the bill drifts from them.
+BILLING_FACTOR = float(os.environ.get("BILLING_FACTOR", "1.1"))
 
-# USD per million tokens (input, output), before BILLING_FACTOR.
+# USD per million tokens (input, output), from Token Factory's /v1/models?verbose=true.
 MODELS = {
     "nano": {
         "id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
@@ -48,16 +46,22 @@ MODELS = {
         "label": "Nemotron 3 Super",
         "price": (0.30, 0.90),
     },
+    "vision": {
+        "id": "nvidia/Nemotron-3.5-Super-VL",
+        "label": "Nemotron 3.5 Super VL",
+        "price": (0.30, 0.90),
+    },
     "ultra": {
         "id": "nvidia/Nemotron-3-Ultra-550b-a55b",
         "label": "Nemotron 3 Ultra",
-        "price": (0.50, 2.20),
+        "price": (1.00, 3.00),
     },
 }
 
 # Default task routing. Overridden by data/routing.json, which the eval writes.
 DEFAULT_ROUTING = {
     "read_listing": "nano",
+    "read_screenshot": "vision",
     "market_prices": "nano",
     "community": "nano",
     "verdict": "ultra",

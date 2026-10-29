@@ -74,8 +74,11 @@ def _post(body, label):
     raise RuntimeError(f"{label} call failed: {last_err}")
 
 
-def chat_json(task, system, user, tier=None, max_tokens=2000, temperature=0, think=False):
+def chat_json(task, system, user, tier=None, max_tokens=2000, temperature=0, think=False,
+              image=None):
     """Run one JSON task. Returns (parsed, meta) where meta has model, tokens, cost.
+
+    image is an optional data URL sent alongside the user text (vision model only).
 
     think=False turns off Nemotron reasoning, which cuts output tokens about 7x
     on extraction tasks with the same answers.
@@ -86,12 +89,23 @@ def chat_json(task, system, user, tier=None, max_tokens=2000, temperature=0, thi
     body = {
         "model": model["id"],
         "messages": [{"role": "system", "content": system},
-                     {"role": "user", "content": user}],
+                     {"role": "user", "content": user if not image else [
+                         {"type": "text", "text": user},
+                         {"type": "image_url", "image_url": {"url": image}}]}],
         "max_tokens": max_tokens,
         "temperature": temperature,
         "response_format": {"type": "json_object"},
         "chat_template_kwargs": {"enable_thinking": think},
     }
+    if tier == "vision":
+        # The VL endpoint hangs on images with chat_template_kwargs or JSON mode; a
+        # "/no_think" system message turns reasoning off instead (90s -> about 10s).
+        body["messages"] = [{"role": "system", "content": "/no_think"},
+                            {"role": "user", "content": [
+                                {"type": "image_url", "image_url": {"url": image}},
+                                {"type": "text", "text": f"{system}\n\n{user}"}]}]
+        body.pop("chat_template_kwargs")
+        body.pop("response_format")
     t0 = time.time()
     pt = ct = 0
     parsed = None

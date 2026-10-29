@@ -36,10 +36,10 @@ def snapshot(lst, page_hash):
                    lst.get("availability_text"), lst.get("seller"), page_hash))
 
 
-def run_check(url=None, text=None):
+def run_check(url=None, text=None, image=None):
     if url:
         url = listing_mod.canonical(url)
-    cache_key = f"check:{url}" if url and not text else None
+    cache_key = f"check:{url}" if url and not text and not image else None
     if cache_key:
         hit = db.cache_get(cache_key, RESULT_TTL_S)
         if hit:
@@ -51,7 +51,9 @@ def run_check(url=None, text=None):
     t0 = time.time()
     try:
         yield _step("read", "Reading the listing", "running")
-        if text:
+        if image:
+            lst, calls, page_hash = listing_mod.read_image(image, url or "")
+        elif text:
             lst, calls, page_hash = listing_mod.read_text(text, url or "")
         else:
             lst, calls, page_hash = listing_mod.read_listing(url)
@@ -99,6 +101,9 @@ def run_check(url=None, text=None):
         all_calls.append(meta)
         yield _step("verdict", "Weighing the evidence", "done", calls=[meta],
                     summary=decision.get("headline"))
+    except listing_mod.NeedScreenshot as e:
+        yield {"type": "need_screenshot", "message": str(e)}
+        return
     except SpendCapReached as e:
         yield {"type": "error", "message": f"Asli paused itself: {e}. This protects the demo budget."}
         return
