@@ -97,15 +97,10 @@ def chat_json(task, system, user, tier=None, max_tokens=2000, temperature=0, thi
         "response_format": {"type": "json_object"},
         "chat_template_kwargs": {"enable_thinking": think},
     }
-    if tier == "vision":
-        # The VL endpoint hangs on images with chat_template_kwargs or JSON mode; a
-        # "/no_think" system message turns reasoning off instead (90s -> about 10s).
-        body["messages"] = [{"role": "system", "content": "/no_think"},
-                            {"role": "user", "content": [
-                                {"type": "image_url", "image_url": {"url": image}},
-                                {"type": "text", "text": f"{system}\n\n{user}"}]}]
-        body.pop("chat_template_kwargs")
-        body.pop("response_format")
+    if image:
+        # Image first, then the instructions; the VL model reads best in that order.
+        body["messages"][1]["content"].reverse()
+        body.pop("response_format")  # plain output parses fine and avoids JSON-mode quirks
     t0 = time.time()
     pt = ct = 0
     parsed = None
