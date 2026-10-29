@@ -81,9 +81,9 @@ class _PgConn:
 _pool = None
 if DATABASE_URL:
     from psycopg_pool import ConnectionPool
-    # Neon drops idle connections, so test each one before handing it out
-    # and recycle them well before Neon would.
-    _pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=8, max_idle=120, max_lifetime=1800,
+    # Neon drops idle connections, so test each one before handing it out.
+    # min_size=0 lets idle connections close so Neon can scale to zero.
+    _pool = ConnectionPool(DATABASE_URL, min_size=0, max_size=8, max_idle=120, max_lifetime=1800,
                            check=ConnectionPool.check_connection,
                            kwargs={"row_factory": _row_factory, "autocommit": True})
 

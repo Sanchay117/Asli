@@ -53,6 +53,7 @@ def _rate_limit(request: Request):
 WATCH_TOKEN = os.environ.get("WATCH_TOKEN", "")
 WATCH_EVERY_S = 110 * 60
 _watch_lock = threading.Lock()
+_last_pass = 0.0  # kept in memory so the 10-minute pings don't wake the database
 
 
 @app.get("/healthz")
@@ -65,8 +66,14 @@ def watch_run(request: Request):
     """Called by a scheduled job: start one watcher pass in the background."""
     if not WATCH_TOKEN or request.headers.get("x-watch-token") != WATCH_TOKEN:
         raise HTTPException(403, "Forbidden")
+    global _last_pass
+    if time.time() - _last_pass < WATCH_EVERY_S:
+        return {"started": False, "reason": "last pass was recent"}
+    # After a restart, fall back to the marker in the database.
     # Snapshots also come from user checks, so passes keep their own marker.
-    if db.cache_get("watch:last_pass", WATCH_EVERY_S):
+    marker = db.cache_get("watch:last_pass", WATCH_EVERY_S)
+    if marker:
+        _last_pass = float(marker)
         return {"started": False, "reason": "last pass was recent"}
     if not _watch_lock.acquire(blocking=False):
         return {"started": False, "reason": "a pass is already running"}
@@ -74,7 +81,9 @@ def watch_run(request: Request):
     def work():
         from asli.watcher import run_once
         try:
-            db.cache_put("watch:last_pass", time.time())
+            global _last_pass
+            _last_pass = time.time()
+            db.cache_put("watch:last_pass", _last_pass)
             run_once(int(time.time() // 7200))
         finally:
             _watch_lock.release()
