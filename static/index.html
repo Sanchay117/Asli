@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asli · Is that GPU deal real?</title>
+<meta name="description" content="Paste a GPU listing from Flipkart, Amazon or an Indian PC store. Asli checks the seller, real stock and trusted-store prices before you buy.">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#check" data-tab="check">
+    <span class="mark" aria-hidden="true">अ</span><span class="word">asli</span>
+  </a>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="check" class="on">Check a deal</button>
+    <button role="tab" data-tab="watch">Watchlist</button>
+    <button role="tab" data-tab="hood">Under the hood</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-check" class="tab on">
+    <div class="hero">
+      <p class="eyebrow">For Indian PC buyers</p>
+      <h1>Asli ya nakli?</h1>
+      <p class="lede">Paste a graphics card listing from Flipkart, Amazon or an Indian PC store.
+        Asli checks the seller, whether it can actually be bought, and what trusted stores charge,
+        before you stay up till midnight for it.</p>
+
+      <form id="form" class="ask" autocomplete="off">
+        <input id="url" type="url" inputmode="url" placeholder="https://www.flipkart.com/..." aria-label="Listing link" required>
+        <button id="go" type="submit">Check deal</button>
+      </form>
+      <div class="examples">
+        <span>Try:</span>
+        <div id="examples" class="chips"></div>
+      </div>
+      <details class="paste">
+        <summary>Site blocked? Paste the listing text instead</summary>
+        <form id="form-text">
+          <textarea id="text" rows="5" placeholder="Copy everything on the product page (title, price, seller, stock) and paste it here"></textarea>
+          <button type="submit">Check pasted text</button>
+        </form>
+      </details>
+    </div>
+
+    <div id="run" class="run" hidden>
+      <div class="run-head">
+        <h2>Agent run</h2>
+        <span id="run-meta" class="muted mono"></span>
+      </div>
+      <ol id="steps" class="steps"></ol>
+    </div>
+
+    <div id="error" class="error" hidden></div>
+    <div id="result" class="result" hidden></div>
+  </section>
+
+  <section id="tab-watch" class="tab">
+    <div class="section-head">
+      <h2>Watchlist</h2>
+      <p class="muted">Every listing anyone checks joins this list. Asli revisits them through the day, so a
+        "Notify Me" listing that never becomes buyable gets caught with proof.</p>
+    </div>
+    <div id="watch" class="watch"></div>
+  </section>
+
+  <section id="tab-hood" class="tab">
+    <div class="section-head">
+      <h2>Under the hood</h2>
+      <p class="muted">Each step runs on the cheapest Nemotron model that does it well, served on Nebius Token Factory.
+        Live numbers from this deployment.</p>
+    </div>
+    <div id="hood"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Built with NVIDIA Nemotron on Nebius Token Factory, and Tavily.</span>
+  <span class="muted">Asli is advice, not a guarantee. Always check the seller page yourself.</span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

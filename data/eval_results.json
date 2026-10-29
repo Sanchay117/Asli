@@ -1,0 +1,106 @@
+{
+ "description": "read_listing: 29 real trusted-store pages, scored on price and stock against the store's own schema.org data. verdict: 12 scenarios with rule-defined correct calls.",
+ "cases": 41,
+ "tolerance_pct": 2.0,
+ "run_at": "29 Oct 2026 14:55",
+ "results": [
+  {
+   "task": "read_listing",
+   "tier": "nano",
+   "think": false,
+   "accuracy": 0.8448275862068966,
+   "cost_per_call": 0.00021587172413793104,
+   "latency_s": 3.3610344827586207,
+   "out_tokens": 189.31034482758622,
+   "n": 29
+  },
+  {
+   "task": "read_listing",
+   "tier": "nano",
+   "think": true,
+   "accuracy": 0.8793103448275862,
+   "cost_per_call": 0.0005181310344827586,
+   "latency_s": 22.311034482758622,
+   "out_tokens": 1448.7241379310344,
+   "n": 29
+  },
+  {
+   "task": "read_listing",
+   "tier": "super",
+   "think": false,
+   "accuracy": 0.3448275862068966,
+   "cost_per_call": 0.001193648275862069,
+   "latency_s": 4.0824137931034485,
+   "out_tokens": 121.93103448275862,
+   "n": 29
+  },
+  {
+   "task": "read_listing",
+   "tier": "ultra",
+   "think": false,
+   "accuracy": 0.9827586206896551,
+   "cost_per_call": 0.001811151724137931,
+   "latency_s": 3.9572413793103447,
+   "out_tokens": 177.6551724137931,
+   "n": 29,
+   "chosen": true
+  },
+  {
+   "task": "verdict",
+   "tier": "nano",
+   "think": true,
+   "accuracy": 0.75,
+   "cost_per_call": 0.000476225,
+   "latency_s": 24.503333333333334,
+   "out_tokens": 1737.3333333333333,
+   "n": 12
+  },
+  {
+   "task": "verdict",
+   "tier": "super",
+   "think": true,
+   "accuracy": 0.75,
+   "cost_per_call": 0.001602525,
+   "latency_s": 13.244166666666667,
+   "out_tokens": 1451.3333333333333,
+   "n": 12
+  },
+  {
+   "task": "verdict",
+   "tier": "ultra",
+   "think": false,
+   "accuracy": 1.0,
+   "cost_per_call": 0.0014532583333333334,
+   "latency_s": 2.755,
+   "out_tokens": 436.0833333333333,
+   "n": 12,
+   "chosen": true
+  },
+  {
+   "task": "verdict",
+   "tier": "ultra",
+   "think": true,
+   "accuracy": 1.0,
+   "cost_per_call": 0.0031522083333333337,
+   "latency_s": 4.458333333333333,
+   "out_tokens": 1208.3333333333333,
+   "n": 12
+  }
+ ],
+ "routing": {
+  "read_listing": "ultra",
+  "market_prices": "ultra",
+  "community": "nano",
+  "verdict": "ultra"
+ },
+ "thinking": {
+  "read_listing": false,
+  "verdict": false
+ },
+ "notes": [
+  "Nano with reasoning off misread about 1 in 6 prices. In a product about prices that is too many, so reading runs on Ultra with reasoning off: more accurate, and still only a fraction of a cent per page.",
+  "Turning Nemotron reasoning off cut output tokens about 7x on extraction, with the same answers on Ultra.",
+  "Super with JSON mode and reasoning off returned {} or looped on escaped JSON on this endpoint. Asli retries without JSON mode, but Super stayed unreliable for this task.",
+  "Forum summaries are not price-critical and stay on Nano."
+ ]
+}

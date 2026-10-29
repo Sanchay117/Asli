@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: asli
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: WATCH_TOKEN
+        generateValue: true
+      - key: SPEND_CAP_USD
+        value: "22"
+      - key: MONTHLY_CAP_USD
+        value: "8"
+      - key: NTFY_TOPIC
+        sync: false

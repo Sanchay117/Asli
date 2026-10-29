@@ -1,0 +1,20 @@
+name: keep Asli awake and watching
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep the free Render instance awake
+        run: curl -fsS --retry 3 --max-time 90 "$ASLI_URL/healthz"
+        env:
+          ASLI_URL: ${{ secrets.ASLI_URL }}
+      - name: Ask for a watcher pass (the server skips it if one ran in the last 2 hours)
+        run: curl -fsS -X POST --max-time 30 -H "x-watch-token: $WATCH_TOKEN" "$ASLI_URL/api/watch/run"
+        env:
+          ASLI_URL: ${{ secrets.ASLI_URL }}
+          WATCH_TOKEN: ${{ secrets.WATCH_TOKEN }}

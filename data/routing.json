@@ -1,0 +1,12 @@
+{
+ "routing": {
+  "read_listing": "ultra",
+  "market_prices": "ultra",
+  "community": "nano",
+  "verdict": "ultra"
+ },
+ "thinking": {
+  "read_listing": false,
+  "verdict": false
+ }
+}
