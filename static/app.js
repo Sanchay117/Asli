@@ -327,7 +327,7 @@ async function loadHood() {
 }
 
 const TASKS = {
-  read_listing: "Read the listing", market_prices: "Price trusted stores",
+  read_listing: "Read the listing", read_screenshot: "Read a screenshot", market_prices: "Price trusted stores",
   community: "Summarise forum reports", verdict: "Final verdict",
 };
 
